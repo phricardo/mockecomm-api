@@ -1,9 +1,11 @@
 package br.com.phricardo.mockecomm.services;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 
 import br.com.phricardo.mockecomm.dtos.ProductDto;
 import br.com.phricardo.mockecomm.entities.ProductEntity;
+import br.com.phricardo.mockecomm.exceptions.NotFoundException;
 import br.com.phricardo.mockecomm.mappers.ProductMapper;
 import br.com.phricardo.mockecomm.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -33,30 +35,25 @@ public class ProductService {
   @Transactional
   public ResponseEntity<Void> delete(final String sku) {
     boolean isProductExist = productRepository.existsBySku(sku);
-    if (isProductExist) {
-      productRepository.deleteBySku(sku);
-      return ResponseEntity.noContent().build();
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    if (!isProductExist) throw new NotFoundException("No products found with this SKU");
+
+    productRepository.deleteBySku(sku);
+    return ResponseEntity.noContent().build();
   }
 
   @Transactional
   public ResponseEntity<ProductDto> update(final String sku, final ProductDto productDto) {
     final ProductEntity productEntity = productRepository.findBySku(sku);
-
-    if (productEntity == null) {
-      return ResponseEntity.notFound().build();
-    }
-
+    if (isNull(productEntity)) throw new NotFoundException("No products found with this SKU");
     productMapper.updateEntityFromDto(productDto, productEntity);
-    ProductEntity updatedProductEntity = productRepository.save(productEntity);
+
+    final ProductEntity updatedProductEntity = productRepository.save(productEntity);
     return ResponseEntity.ok(productMapper.entityToDto(updatedProductEntity));
   }
 
   public ResponseEntity<ProductDto> getByProductSku(final String sku) {
     final ProductEntity productEntity = productRepository.findBySku(sku);
-    if (productEntity == null) return ResponseEntity.notFound().build();
+    if (isNull(productEntity)) throw new NotFoundException("No products found with this SKU");
     return ResponseEntity.ok(productMapper.entityToDto(productEntity));
   }
 
@@ -67,7 +64,7 @@ public class ProductService {
   //  }
 
   public Page<ProductDto> getPaginatedProducts(final Pageable pageable) {
-    Page<ProductEntity> productPage = productRepository.findAll(pageable);
+    final Page<ProductEntity> productPage = productRepository.findAll(pageable);
     return productPage.map(productMapper::entityToDto);
   }
 }
