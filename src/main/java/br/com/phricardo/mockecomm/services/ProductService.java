@@ -28,7 +28,7 @@ public class ProductService {
     final ProductEntity productEntity = productMapper.dtoToEntity(productDto);
     final ProductEntity productEntitySaved = productRepository.save(productEntity);
 
-    return ResponseEntity.created(URI.create(format("/products/%s", productEntity.getSku())))
+    return ResponseEntity.created(URI.create(format("/products/%s", productEntitySaved.getSku())))
         .body(productMapper.entityToDto(productEntitySaved));
   }
 
