@@ -8,8 +8,6 @@ import br.com.phricardo.mockecomm.mappers.ProductMapper;
 import br.com.phricardo.mockecomm.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,11 +60,11 @@ public class ProductService {
     return ResponseEntity.ok(productMapper.entityToDto(productEntity));
   }
 
-  public List<ProductDto> getAllProducts() {
-    return productRepository.findAll().stream()
-        .map(productMapper::entityToDto)
-        .collect(Collectors.toList());
-  }
+  //  public List<ProductDto> getAllProducts() {
+  //    return productRepository.findAll().stream()
+  //        .map(productMapper::entityToDto)
+  //        .collect(Collectors.toList());
+  //  }
 
   public Page<ProductDto> getPaginatedProducts(final Pageable pageable) {
     Page<ProductEntity> productPage = productRepository.findAll(pageable);

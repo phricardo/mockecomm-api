@@ -3,8 +3,10 @@ package br.com.phricardo.mockecomm.controllers;
 import br.com.phricardo.mockecomm.dtos.ProductDto;
 import br.com.phricardo.mockecomm.services.ProductService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +38,16 @@ public class ProductController {
     return productService.getByProductSku(sku);
   }
 
+  //  @GetMapping
+  //  public List<ProductDto> getProduct() {
+  //    return productService.getAllProducts();
+  //  }
+
   @GetMapping
-  public List<ProductDto> getProduct() {
-    return productService.getAllProducts();
+  public ResponseEntity<Page<ProductDto>> getPaginatedProducts(
+      @RequestParam(defaultValue = "0") final int page,
+      @RequestParam(defaultValue = "3") final int size) {
+    final Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(productService.getPaginatedProducts(pageable));
   }
 }
